@@ -128,7 +128,7 @@ void work() {
   // Control the right blink
   if(g_blink) {
     if(g_blink_start + blink_length < millis()) {
-      digitalWrite(GREEN, (g_on ? LOW : HIGH));
+      digitalWrite(GREEN, (g_on ? HIGH : LOW));
       g_on = (g_on ? false : true);
       g_blink_start = millis();
     }
@@ -137,7 +137,7 @@ void work() {
   // Control the left blink
   if(r_blink) {
     if(r_blink_start + blink_length < millis()) {
-      digitalWrite(RED, (r_on ? LOW : HIGH));
+      digitalWrite(RED, (r_on ? HIGH : LOW));
       r_on = (r_on ? false : true);
       r_blink_start = millis();
     }
