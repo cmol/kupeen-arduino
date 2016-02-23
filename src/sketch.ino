@@ -12,18 +12,18 @@ int TR    =  8;
 int TURN_R = 2;
 int TURN_L = 3;
 int TURN_TIME = 2000;
-int turn_start = 0;
+long turn_start = 0;
 int turning_r = false;
 int turning_l = false;
 
 // Blink states
-bool g_blink               = false;
-bool g_on                  = false;
-unsigned int g_blink_start = 0;
-bool r_blink               = false;
-bool r_on                  = false;
-unsigned int r_blink_start = 0;
-unsigned int blink_length  = 1000;
+bool g_blink                = false;
+bool g_on                   = false;
+unsigned long g_blink_start = 0;
+bool r_blink                = false;
+bool r_on                   = false;
+unsigned long r_blink_start = 0;
+unsigned long blink_length   = 1000;
 
 // the setup routine runs once when you press reset:
 void setup() {
@@ -118,12 +118,6 @@ void turnLeft() {
   }
 }
 
-// the loop routine runs over and over again forever:
-void loop() {
-  work();
-  communicate();
-}
-
 void work() {
   // Control the right blink
   if(g_blink) {
@@ -157,8 +151,8 @@ void work() {
       digitalWrite(TURN_L, HIGH);
       turning_l = false;
     }
-  }
 
+  }
 }
 
 void communicate() {
@@ -170,43 +164,65 @@ void communicate() {
     int logic_address = (serial_data[1] >> 4) & 15;
     int instruction = serial_data[1] & 15;
 
-    switch(instruction) {
-      case 1:
-        // Signal denied
-        denied();
+    switch(address) {
+      case 0: // Signalmodul
+
+        switch(instruction) {
+          case 1:
+            // Signal denied
+            denied();
+            break;
+          case 2:
+            // Signal allowed
+            allowed();
+            break;
+          case 3:
+            // Signal cancel
+            cancel();
+            break;
+          case 4:
+            // Signal carefull
+            carefull();
+            break;
+          case 5:
+            // Signal greenSolid (go)
+            greenSolid();
+            break;
+          case 6:
+            // Signal redSolid (stop)
+            redSolid();
+            break;
+          case 7:
+            // Signal greenBlink (go go go)
+            greenBlink();
+            break;
+          case 8:
+            // Signal redBlink (stop and go)
+            redBlink();
+            break;
+          case 0:
+            byte wb[2] = {192,0};
+            Serial.write(wb,2);
+            break;
+
+        byte response = 0x0;
+        Serial.write(response,1);
+        }
+
         break;
-      case 2:
-        // Signal allowed
-        allowed();
+      case 1: // Sporskiftemodul
+        // Not yet implemented
         break;
-      case 3:
-        // Signal cancel
-        cancel();
-        break;
-      case 4:
-        // Signal carefull
-        carefull();
-        break;
-      case 5:
-        // Signal greenSolid (go)
-        greenSolid();
-        break;
-      case 6:
-        // Signal redSolid (stop)
-        redSolid();
-        break;
-      case 7:
-        // Signal greenBlink (go go go)
-        greenBlink();
-        break;
-      case 8:
-        // Signal redBlink (stop and go)
-        redBlink();
-        break;
-      case 0:
-        byte wb[2] = {192,0};
-        Serial.write(wb,2);
+      case 2: // Sporisolationsmodul
+        // Not yet implemented
         break;
     }
+
   }
+}
+
+// the loop routine runs over and over again forever:
+void loop() {
+  work();
+  communicate();
 }
